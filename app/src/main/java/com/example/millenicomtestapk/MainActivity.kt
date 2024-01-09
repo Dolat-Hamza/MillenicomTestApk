@@ -7,6 +7,13 @@ import android.webkit.WebView
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.wireless.ambeentutil.Ambeent
+import com.wireless.ambeentutil.Ambeent.RegisterDeviceCallback
+import com.wireless.ambeentutil.AmbeentDeviceId
+import com.wireless.ambeentutil.ambpkg.AmbBuilder
+import com.wireless.ambeentutil.ambpkg.responseType.Failure
+import com.wireless.ambeentutil.ambpkg.responseType.MessageType
+import com.wireless.ambeentutil.ambpkg.responseType.Success
 
 class MainActivity : AppCompatActivity() {
 
