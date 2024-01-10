@@ -62,6 +62,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation ("com.gitlab.Ambeent.ambeent-android-sdk:ambeentutil:v0.2.33")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.gms:play-services-location:18.0.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
