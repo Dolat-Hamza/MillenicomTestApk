@@ -20,6 +20,7 @@ android {
         }
     }
 
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -48,7 +49,9 @@ android {
         }
     }
 
+
 }
+
 
 dependencies {
 
@@ -61,10 +64,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation ("com.gitlab.Ambeent.ambeent-android-sdk:ambeentutil:v0.2.33")
+    implementation ("com.gitlab.Ambeent.ambeent-android-sdk:ambeentutil:v0.2.35")
     implementation("com.google.android.material:material:1.11.0")
     implementation("com.google.android.gms:play-services-location:18.0.0")
-
+   // implementation("androidx.room:room-common:2.6.1")
+   // implementation("androidx.room:room-compiler:2.6.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

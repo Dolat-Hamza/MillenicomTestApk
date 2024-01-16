@@ -13,8 +13,13 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.View
 import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -25,12 +30,14 @@ import com.google.android.material.snackbar.Snackbar
 import com.wireless.ambeentutil.Ambeent
 import com.wireless.ambeentutil.AmbeentDeviceId
 import com.wireless.ambeentutil.AmbeentExceptions
-import com.wireless.ambeentutil.LibRepository
 import com.wireless.ambeentutil.ambpkg.AmbBuilder
 import com.wireless.ambeentutil.ambpkg.responseType.Failure
 import com.wireless.ambeentutil.ambpkg.responseType.InProgress
 import com.wireless.ambeentutil.ambpkg.responseType.MessageType
 import com.wireless.ambeentutil.ambpkg.responseType.Success
+import com.wireless.ambeentutil.sampledata.hosts.MyWebViewClient
+import org.json.JSONException
+import org.json.JSONObject
 
 
 const val PERMISSION_LOCATION_SERVICES = 100
@@ -48,6 +55,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var modemMac: String
     private lateinit var builder: AmbBuilder
     lateinit var snackLayout: CoordinatorLayout
+    lateinit var macAddress: String
+    lateinit var routerInfo0: String
+    lateinit var routerInfo1: String
+    var selectedBrand : String = "brand"
+    var selectedRouter : String = "router"
+    lateinit var extractedBrand : TextView
+    lateinit var extractedRouter : TextView
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-
+        displaySupportedBrands()
         // First, call getWiFiInfo() to initialize wifiManager
         getWiFiInfo()
         wifiManager =
@@ -119,33 +135,53 @@ class MainActivity : AppCompatActivity() {
         // Set up the "Optimize Router" button click listener
         val optimizeRouterButton = findViewById<Button>(R.id.btnOptimizeRouter)
         snackLayout = findViewById(R.id.layout)
-
-            // optimizeRouter()
+        extractedBrand = findViewById<TextView>(R.id.brandExtracted)
+        extractedRouter = findViewById<TextView>(R.id.routerExtracted)
+        // optimizeRouter()
         optimizeRouterButton?.setOnClickListener {
-                try {
+            try {
 
-                       // builder.setDetectRouterModel(true)
-                    performTest()
+                performTest()
+                //Setting brand and router name
+//                extractedBrand.setText(routerInfo0)
+//                extractedRouter.setText(routerInfo1)
 //
 //                    if (builder.isTestDetectRouterModel) {
 //
 //                    } else {
 //
 //                    }
-                } catch (e: AmbeentExceptions.WiFiNotEnabledException) {
-                    e.printStackTrace()
-                } catch (e: AmbeentExceptions.WiFiConnectionNullException) {
-                } catch (e: AmbeentExceptions.WiFiConnectionNullException) {
-                    e.printStackTrace()
-                } catch (e: AmbeentExceptions.WiFiBssidNullException) {
-                    e.printStackTrace()
-                } catch (e: AmbeentExceptions.LocationNotGrantedException) {
-                    e.printStackTrace()
-                } catch (e: AmbeentExceptions.LocationServiceNotEnabledException) {
-                    e.printStackTrace()
-                }
+            } catch (e: AmbeentExceptions.WiFiNotEnabledException) {
+                e.printStackTrace()
+            } catch (e: AmbeentExceptions.WiFiConnectionNullException) {
+            } catch (e: AmbeentExceptions.WiFiConnectionNullException) {
+                e.printStackTrace()
+            } catch (e: AmbeentExceptions.WiFiBssidNullException) {
+                e.printStackTrace()
+            } catch (e: AmbeentExceptions.LocationNotGrantedException) {
+                e.printStackTrace()
+            } catch (e: AmbeentExceptions.LocationServiceNotEnabledException) {
+                e.printStackTrace()
             }
+        }
 
+        val webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
+        webViewButton.setOnClickListener(){
+            //val webView = WebView(this)
+            val webView = findViewById<WebView>(R.id.webView)
+            val webSettings = webView.settings
+            webSettings.javaScriptEnabled = true
+            optimizeRouterButton.visibility = View.GONE
+            webViewButton.visibility = View.GONE
+            webView.visibility = View.VISIBLE
+            webView.webViewClient = WebViewClient()
+            val formattedGateway = formatIpAddress(gatewayIpAddress)
+            // Replace "http://$gatewayIpAddress" with the actual IP address of the router
+            webView.loadUrl("http://$formattedGateway")
+
+
+            Log.d("GatewayAddress" ,"https://$formattedGateway")
+        }
 
     }
 
@@ -185,18 +221,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun optimizeRouter() {
         // You can now use the stored gateway IP address wherever needed
+        // getWiFiInfo()
+
+        // Create a WebView within the context of your activity
         val webView = WebView(this)
         val webSettings = webView.settings
         webSettings.javaScriptEnabled = true
 
         // Replace "http://$gatewayIpAddress" with the actual IP address of the router
-        webView.loadUrl("http://${formatIpAddress(gatewayIpAddress)}")
-        setContentView(webView)
+        webView.loadUrl("http://$gatewayIpAddress")
+
+
     }
 
-    @RequiresApi(34)
+
     fun initialize(ambeentDeviceId: AmbeentDeviceId, location: Location) {
-        Log.e("TAG", "initializeUI: "+ location.latitude + " " + location.longitude)
+
+        Log.e("TAG", "initializeUI: " + location.latitude + " " + location.longitude)
 
 //        var locationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
         //Log.d("locationClient", locationClient.toString())
@@ -243,13 +284,15 @@ class MainActivity : AppCompatActivity() {
 
         try {
             val testRunner = builder.build()
+            builder.setDetectRouterModel(true)
             var thread = testRunner.executeTest { msg, data ->
 
                 when (msg) {
                     MessageType.FAILURE -> {
                         if (data is Failure) {
                             displaySnackbar(snackLayout, "Router is not supported")
-                            Log.d("Failure", "${data.message} , ${data.code}" )
+                            Log.d("Failure", "${data.message} , ${data.code}")
+                            displaySupportedBrands()
                         }
                     }
 
@@ -262,25 +305,135 @@ class MainActivity : AppCompatActivity() {
 
                     MessageType.SUCCESS -> {
                         if (data is Success) {
-                            displaySnackbar(snackLayout, "successful")
-                            Log.d("Success", "in success")
-                            //optimizeRouter()
+                            if (data.status !== null && data.status == "RouterModelSuccess") {
+                                val dataMap = data.data as Map<*, *>
+
+                                // Convert the Map to a JSON string
+                                val jsonData = JSONObject(dataMap)
+                                val jsonString = jsonData.toString()
+
+                                try {
+                                    // Parse the jsonString as a JSON object
+                                    val jsonObject = JSONObject(jsonString)
+
+                                    // Extract values
+                                    macAddress = jsonObject.getString("macAddress")
+                                    routerInfo0 = jsonObject.getString("routerInfo0")
+                                    routerInfo1 = jsonObject.getString("routerInfo1")
+
+                                    extractedBrand.setText(routerInfo0)
+                                    extractedRouter.setText(routerInfo1)
+
+                                    Log.d(
+                                        "SuccessEDS",
+                                        "macAddress: $macAddress, routerInfo0: $routerInfo0, routerInfo1: $routerInfo1"
+                                    )
+
+                                    //Different conditions to check router and brand
+                                    if (routerInfo0.isNotEmpty() && routerInfo1 == ""){
+                                        displaySupportedRouters(routerInfo0)
+                                    }
+                                    else{
+                                        displaySnackbar(snackLayout, "successful")
+                                    }
+
+                                    getSupportedRouterList()
+                                } catch (e: JSONException) {
+                                    // Handle JSON parsing exception
+                                    e.printStackTrace()
+                                }
+                            }
                         }
                     }
+
+
                 }
             }
 
         } catch (e: Exception) {
-            // Handle any exceptions that might occur during execution
-            e.printStackTrace()
-//                    val snackBar = Snackbar.make(
-//                        //requireView(), "Error running tests: ${e.message}", Snackbar.LENGTH_LONG
-//                    )
-//                    snackBar.show()
+            Log.e("MainActivity", "Exception: ${e.message}", e)
+
         } finally {
             // Re-enable the button after the task is completed
             //executeTestsButton.isEnabled = true
         }
     }
+
+    private fun getSupportedRouterList() {
+        if (AccessPointFactory.supportedRouters.get(routerInfo0) != null) {
+
+            if (AccessPointFactory.supportedRouters.containsKey(routerInfo0)) {
+                Log.d("Found", "We found in the list " + routerInfo0)
+               // optimizeRouter()
+            }
+
+
+            Log.e("SUPPORTED", "getSupportedRouterList: " + "FOUNDED")
+//            optimizeRouter()
+
+        }
+//        for (router in AccessPointFactory.supportedRouters) {
+//            Log.e("SUPPORTED", "getSupportedRouterList: " + router.key)
+//            for (model in router.value) {
+//                Log.e("SUPPORTED", "getSupportedRouterList: " + model)
+//            }
+//        }
+//        if(APFactory.supportedRouters.containsKey(routerInfo0)){
+//            Log.e("SUPPORTED", "getSupportedRouterList: " + "FOUNDED")
+//            optimizeRouter()
+//        }
+    }
+    fun displaySupportedBrands(){
+        //Settting spinner
+        var brandSpinner : Spinner = findViewById(R.id.brandSpinner)
+        brandSpinner.visibility = View.VISIBLE
+        val supportedBrands : List<String> = AccessPointFactory.supportedRouters.keys.toList()
+        val dataAdapter: ArrayAdapter<String> =
+            ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, supportedBrands)
+        // Drop down layout style - list view with radio button
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        brandSpinner.setAdapter(dataAdapter)
+        brandSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
+                selectedBrand = supportedBrands[position]
+                dataAdapter.notifyDataSetChanged()
+                // Do something with the selected item
+                //println("Selected item: $selectedItem")
+                Log.d("Selected Brand:", selectedBrand)
+                displaySupportedRouters(selectedBrand)
+               // Toast.makeText(this@MainActivity, "Selected: $selectedBrand", Toast.LENGTH_LONG).show()
+            }
+
+            override fun onNothingSelected(parentView: AdapterView<*>?) {
+                // Handle the case when nothing is selected
+            }
+        }
+    }
+
+    fun displaySupportedRouters(brand:String){
+        var routerSpinner: Spinner = findViewById(R.id.routerSpinner)
+        routerSpinner.visibility = View.VISIBLE
+        val supportedRouters : Array<String> = AccessPointFactory.supportedRouters[brand]!!
+        //Log.d("Routers", "Array for key '$brand': ${supportedRouters.joinToString(", ")}")
+        val dataAdapter: ArrayAdapter<String> =
+            ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, supportedRouters)
+        // Drop down layout style - list view with radio button
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        routerSpinner.setAdapter(dataAdapter)
+        routerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
+                selectedRouter = supportedRouters[position]
+                dataAdapter.notifyDataSetChanged()
+                Log.d("Selected Router:", selectedRouter)
+                // Do something with the selected item
+                //Toast.makeText(this@MainActivity, "Selected: $selectedBrand", Toast.LENGTH_LONG).show()
+            }
+
+            override fun onNothingSelected(parentView: AdapterView<*>?) {
+                // Handle the case when nothing is selected
+            }
+        }
+    }
+
 
 }
