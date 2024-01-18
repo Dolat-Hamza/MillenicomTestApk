@@ -12,6 +12,8 @@ import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.View
+import android.webkit.ConsoleMessage
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.AdapterView
@@ -62,12 +64,17 @@ class MainActivity : AppCompatActivity() {
     var selectedRouter : String = "router"
     lateinit var extractedBrand : TextView
     lateinit var extractedRouter : TextView
+    var webViewButton : Button? = null
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Set up the "Optimize Router" and "Web view" button click listener
+        val optimizeRouterButton = findViewById<Button>(R.id.btnOptimizeRouter)
+        webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
 
         applicationContext = getApplicationContext()
         geocoder = Geocoder(applicationContext)
@@ -113,17 +120,20 @@ class MainActivity : AppCompatActivity() {
                             // Handle location retrieval failure
                         }
                     }
-
+                    optimizeRouterButton.visibility = View.VISIBLE
                     return deviceId
                 }
 
                 override fun onDeviceRegistrationFailed(t: Throwable) {
                     Log.e("TAG", "onDeviceRegistrationFailed: " + t.cause + "  " + t.message)
+
                     // handle error
                 }
             })
 
-        displaySupportedBrands()
+
+
+        //displaySupportedBrands()
         // First, call getWiFiInfo() to initialize wifiManager
         getWiFiInfo()
         wifiManager =
@@ -132,8 +142,7 @@ class MainActivity : AppCompatActivity() {
 //        initialize()
 
 
-        // Set up the "Optimize Router" button click listener
-        val optimizeRouterButton = findViewById<Button>(R.id.btnOptimizeRouter)
+
         snackLayout = findViewById(R.id.layout)
         extractedBrand = findViewById<TextView>(R.id.brandExtracted)
         extractedRouter = findViewById<TextView>(R.id.routerExtracted)
@@ -165,23 +174,37 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
-        webViewButton.setOnClickListener(){
-            //val webView = WebView(this)
-            val webView = findViewById<WebView>(R.id.webView)
-            val webSettings = webView.settings
-            webSettings.javaScriptEnabled = true
-            optimizeRouterButton.visibility = View.GONE
-            webViewButton.visibility = View.GONE
-            webView.visibility = View.VISIBLE
-            webView.webViewClient = WebViewClient()
-            val formattedGateway = formatIpAddress(gatewayIpAddress)
-            // Replace "http://$gatewayIpAddress" with the actual IP address of the router
-            webView.loadUrl("http://$formattedGateway")
+        if (webViewButton != null){
+            //val webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
+            //webViewButton!!.visibility = View.VISIBLE
+            webViewButton!!.setOnClickListener(){
+                //val webView = WebView(this)
+                val webView = findViewById<WebView>(R.id.webView)
+                val webSettings = webView.settings
+                webSettings.javaScriptEnabled = true
+                optimizeRouterButton.visibility = View.GONE
+                webViewButton!!.visibility = View.GONE
+                webView.visibility = View.VISIBLE
+                webView.webViewClient = WebViewClient()
+                // new lines addition
+                WebView.setWebContentsDebuggingEnabled(true)
+                webView.settings.domStorageEnabled = true
+
+                val formattedGateway = formatIpAddress(gatewayIpAddress)
+                // Replace "http://$gatewayIpAddress" with the actual IP address of the router
+                webView.loadUrl("http://$formattedGateway")
+                webView.webChromeClient = object : WebChromeClient() {
+                    override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                        Log.d("WebViewConsole", "${consoleMessage?.message()}")
+                        return super.onConsoleMessage(consoleMessage)
+                    }
+                }
 
 
-            Log.d("GatewayAddress" ,"https://$formattedGateway")
+                Log.d("GatewayAddress" ,"https://$formattedGateway")
+            }
         }
+
 
     }
 
@@ -334,10 +357,13 @@ class MainActivity : AppCompatActivity() {
                                         displaySupportedRouters(routerInfo0)
                                     }
                                     else{
-                                        displaySnackbar(snackLayout, "successful")
+                                        Toast.makeText(this, "Successful", Toast.LENGTH_LONG).show()
+                                       displaySnackbar(snackLayout, "successful")
                                     }
 
-                                    getSupportedRouterList()
+                                    webViewButton!!.visibility = View.VISIBLE
+
+                                    //getSupportedRouterList()
                                 } catch (e: JSONException) {
                                     // Handle JSON parsing exception
                                     e.printStackTrace()
