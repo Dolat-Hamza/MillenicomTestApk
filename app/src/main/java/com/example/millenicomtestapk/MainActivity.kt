@@ -13,6 +13,7 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.View
 import android.webkit.ConsoleMessage
+import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -48,6 +49,7 @@ const val PERMISSION_LOCATION_SERVICES = 100
 class MainActivity : AppCompatActivity() {
     private val PUBLIC_TESTING_COMPANY_ID = "3c7b06b3-6acc-4245-bcd2-d0b0dd7baf51"
     private val PUBLIC_TESTING_CUSTOMER_ID = "Milleni@v0.2.22"
+    private var mAccessPoint: AccessPoint? = null
 
     private var gatewayIpAddress: Int = 0 // Property to store the gateway IP address
     private lateinit var applicationContext: Context
@@ -186,6 +188,7 @@ class MainActivity : AppCompatActivity() {
                 webViewButton!!.visibility = View.GONE
                 webView.visibility = View.VISIBLE
                 webView.webViewClient = WebViewClient()
+
                 // new lines addition
                 WebView.setWebContentsDebuggingEnabled(true)
                 webView.settings.domStorageEnabled = true
@@ -199,6 +202,21 @@ class MainActivity : AppCompatActivity() {
                         return super.onConsoleMessage(consoleMessage)
                     }
                 }
+                webView.webViewClient.onPageFinished(webView, "http://$formattedGateway")
+                val cookie = CookieManager.getInstance().getCookie(formattedGateway)
+                mAccessPoint?.let { ap ->
+                    val jsCode: String? = formattedGateway.let(ap::getJSCodeForUrl)
+
+                    jsCode?.let {
+                        webView.evaluateJavascript(
+                            it
+                        ) { value ->
+                            Log.d("New Value", value.toString())
+                        }
+                    }
+                }
+
+
 
 
                 Log.d("GatewayAddress" ,"https://$formattedGateway")
