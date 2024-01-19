@@ -330,7 +330,7 @@ object AccessPointFactory {
     )
 
     fun getAccessPoint(
-        router: RouterEntity,
+        router: com.example.millenicomtestapk.RouterEntity,
         gateway: String,
         callbackPort: Int
     ): AccessPoint? {
@@ -343,14 +343,16 @@ object AccessPointFactory {
                     model,
                     true
                 ) || router.model == "unknown" || router.model == "Unknown"
-            ) return createAccessPoint(
-                router.brand,
-                model,
-                gateway,
-                router.username,
-                router.password,
-                callbackPort
-            )
+            ) return router.brand?.let {
+                createAccessPoint(
+                    it,
+                    model,
+                    gateway,
+                    router.username,
+                    router.password,
+                    callbackPort
+                )
+            }
         }
 //        Timber.e(String.format("%s %s is not supported", router.brand, router.model))
         return null
