@@ -34,6 +34,7 @@ import java.net.InetAddress
 import java.net.NetworkInterface
 import java.util.Collections
 import android.net.DhcpInfo
+import android.widget.EditText
 import com.example.millenicomtestapk.Constants.APP_CALLBACK_PORT
 
 
@@ -72,6 +73,8 @@ class MainActivity : AppCompatActivity() {
         // Set up the "Optimize Router" and "Web view" button click listener
         val optimizeRouterButton = findViewById<Button>(R.id.btnOptimizeRouter)
         webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
+        var userName : EditText = findViewById(R.id.username)
+        var password : EditText = findViewById(R.id.password)
 
         applicationContext = getApplicationContext()
 //        geocoder = Geocoder(applicationContext)
@@ -516,6 +519,33 @@ class MainActivity : AppCompatActivity() {
                             break
                         }
                     }
+                    if (gatewayAddress == null || routerInfo == null) {
+                        displaySnackbar(snackLayout, "Router is not supported")
+                    }
+                }
+
+                //Checking for lower android versions
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                    val wifiInfo = wifiManager.connectionInfo
+
+                    // Extract gateway address from DHCP info
+                    val dhcpInfo = wifiManager.dhcpInfo
+                    gatewayAddress = InetAddress.getByAddress(intToByteArray(dhcpInfo.gateway)).hostAddress
+
+                    // Attempt to extract router info using UPnP or other methods
+                    routerInfo = getUpnpInfo()
+                    // ... rest of your code ...
+                    Log.d("RouterInfoDetails", "Router Info: ${routerInfo?.joinToString(", ")}")
+                    extractedBrand.setText(routerInfo?.get(0))
+                    extractedRouter.setText(routerInfo?.get(1))
+                    val myRouter = RouterEntity(routerInfo?.get(0),routerInfo?.get(1), "", "")
+                    AccessPointFactory.getAccessPoint(
+                        router = myRouter,
+                        gateway = gatewayAddress.toString(),
+                        callbackPort = APP_CALLBACK_PORT
+                    )
+                    Log.d("LowerAndroidVersions", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
                 }
 
                 // Attempt 2: Get gateway from DhcpInfo (for older APIs)
@@ -563,6 +593,15 @@ class MainActivity : AppCompatActivity() {
 
         return Pair(gatewayAddress, routerInfo)
 
+    }
+    // Helper function to convert integer to byte array
+    private fun intToByteArray(value: Int): ByteArray {
+        return byteArrayOf(
+            (value and 0xFF).toByte(),
+            ((value shr 8) and 0xFF).toByte(),
+            ((value shr 16) and 0xFF).toByte(),
+            ((value shr 24) and 0xFF).toByte()
+        )
     }
 
 }
