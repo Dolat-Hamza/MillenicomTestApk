@@ -79,6 +79,7 @@ import com.example.millenicomtestapk.Constants.ARRIS
 import com.example.millenicomtestapk.Constants.ASUS
 import com.example.millenicomtestapk.Constants.ArcherC20
 import com.example.millenicomtestapk.Constants.ArcherC5V
+import com.example.millenicomtestapk.Constants.ArcherC6v2
 import com.example.millenicomtestapk.Constants.Archer_A10
 import com.example.millenicomtestapk.Constants.Archer_A20
 import com.example.millenicomtestapk.Constants.Archer_A2300
@@ -259,6 +260,7 @@ object AccessPointFactory {
         SAGEMCOM to arrayOf(LiveBoxAc22),
         SAGEMCOMUPPER to arrayOf(Fatst3686V1B),
         TPLINK to arrayOf(
+            ArcherC6v2,
             VC220G3u,
             VN020F3,
             TDW8951ND,
@@ -795,6 +797,7 @@ object AccessPointFactory {
         callbackPort: Int
     ): AccessPoint? {
         return when (model) {
+            ArcherC6v2 -> TPLinkTD_ArcherC6v2(gateway, username, password, callbackPort)
             VN020G2u -> TPLinkTD_VN020G2u(gateway, username, password, callbackPort)
             VC220G3u -> TPLinkTD_VC220G3u(gateway, username, password, callbackPort)
             VN020F3 -> TPLinkTD_VN020F3(gateway, username, password, callbackPort)

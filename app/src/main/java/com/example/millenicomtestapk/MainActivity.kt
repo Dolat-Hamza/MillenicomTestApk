@@ -12,19 +12,25 @@ import android.util.Log
 import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.example.millenicomtestapk.Constants.APP_CALLBACK_PORT
 import com.google.android.material.snackbar.Snackbar
 import com.wireless.ambeentutil.Ambeent.getUpnpInfo
+import com.wireless.ambeentutil.sampledata.hosts.MyWebViewClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -33,9 +39,6 @@ import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.util.Collections
-import android.net.DhcpInfo
-import android.widget.EditText
-import com.example.millenicomtestapk.Constants.APP_CALLBACK_PORT
 
 
 const val PERMISSION_LOCATION_SERVICES = 100
@@ -71,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Set up the "Optimize Router" and "Web view" button click listener
-        val optimizeRouterButton = findViewById<Button>(R.id.btnOptimizeRouter)
+        //val optimizeRouterButton = findViewById<Button>(R.id.btnOptimizeRouter)
         webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
         var userName : EditText = findViewById(R.id.username)
         var password : EditText = findViewById(R.id.password)
@@ -187,7 +190,6 @@ class MainActivity : AppCompatActivity() {
                 val webView = findViewById<WebView>(R.id.webView)
                 val webSettings = webView.settings
                 webSettings.javaScriptEnabled = true
-                optimizeRouterButton.visibility = View.GONE
                 webViewButton!!.visibility = View.GONE
                 webView.visibility = View.VISIBLE
                 webView.webViewClient = WebViewClient()
@@ -207,25 +209,46 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 //New addition for JS injection
-                webView.webViewClient.onPageFinished(webView, "http://$formattedGateway")
+               //webView.webViewClient.onPageFinished(webView, "http://$formattedGateway")
+//                val cookie = CookieManager.getInstance().getCookie(formattedGateway)
                 val cookie = CookieManager.getInstance().getCookie(formattedGateway)
-                mAccessPoint?.let { ap ->
-                    val jsCode: String? = formattedGateway.let(ap::getJSCodeForUrl)
+                var url = "http://$formattedGateway"
 
-                    jsCode?.let {
-                        webView.evaluateJavascript(
-                            it
-                        ) { value ->
-                            Log.d("New Value", value.toString())
+                Log.d("URLCheck", "url: $url")
+                webView.webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        val jsCode = mAccessPoint?.getJSCodeForUrl(url)
+                        Log.d("JSCode", jsCode.toString())
+                        super.onPageFinished(view, url)
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && jsCode != null) {
+                            webView.evaluateJavascript(jsCode) { value ->
+                                Log.d("Check", value!!)
+                            }
                         }
                     }
                 }
 
+                //webView.loadUrl("http://$formattedGateway")
 
+                //new Lines added
 
-
+//
+//                mAccessPoint?.let { ap ->
+//                    val jsCode: String? = formattedGateway.let(ap::getJSCodeForUrl)
+//                    Log.d("jsCode" , jsCode.toString())
+//
+//                    jsCode?.let {
+//                        webView.evaluateJavascript(
+//                            it
+//                        ) { value ->
+//                            Log.d("New Value", value.toString())
+//                        }
+//                    }
+//                }
                 Log.d("GatewayAddress" ,"https://$formattedGateway")
             }
+
         }
 
 
@@ -247,7 +270,6 @@ class MainActivity : AppCompatActivity() {
             // Display the Wi-Fi and gateway information
             val wifiInfoTextView = findViewById<TextView>(R.id.wifiInfoTextView)
             wifiInfoTextView.text = """
-                     Connected to:
                      SSID: $ssid
                      Gateway IP Address: ${formatIpAddress(gatewayIpAddress)}
                      """.trimIndent()
@@ -435,9 +457,13 @@ class MainActivity : AppCompatActivity() {
     }
     fun displaySupportedBrands(){
         //Settting spinner
+        val brandLayout : LinearLayout = findViewById(R.id.brandLinear)
         var brandSpinner : Spinner = findViewById(R.id.brandSpinner)
+        brandLayout.visibility = View.VISIBLE
         brandSpinner.visibility = View.VISIBLE
+        brandSpinner.setPrompt("Select Brand")
         val supportedBrands : List<String> = AccessPointFactory.supportedRouters.keys.toList()
+        Log.d("SupportedList", AccessPointFactory.supportedRouters.keys.toList().toString())
         val dataAdapter: ArrayAdapter<String> =
             ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, supportedBrands)
         // Drop down layout style - list view with radio button
@@ -450,18 +476,22 @@ class MainActivity : AppCompatActivity() {
                 // Do something with the selected item
                 //println("Selected item: $selectedItem")
                 Log.d("Selected Brand:", selectedBrand)
+                extractedBrand.setText(selectedBrand)
                 displaySupportedRouters(selectedBrand)
                // Toast.makeText(this@MainActivity, "Selected: $selectedBrand", Toast.LENGTH_LONG).show()
             }
 
             override fun onNothingSelected(parentView: AdapterView<*>?) {
                 // Handle the case when nothing is selected
+                extractedBrand.setText("")
             }
         }
     }
 
     fun displaySupportedRouters(brand:String){
+        val routerLayout : LinearLayout = findViewById(R.id.routerLinear)
         var routerSpinner: Spinner = findViewById(R.id.routerSpinner)
+        routerLayout.visibility = View.VISIBLE
         routerSpinner.visibility = View.VISIBLE
         val supportedRouters : Array<String> = AccessPointFactory.supportedRouters[brand]!!
         //Log.d("Routers", "Array for key '$brand': ${supportedRouters.joinToString(", ")}")
@@ -474,6 +504,22 @@ class MainActivity : AppCompatActivity() {
             override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
                 selectedRouter = supportedRouters[position]
                 dataAdapter.notifyDataSetChanged()
+                extractedRouter.setText(selectedRouter)
+                // New Lines added
+                val dhcpInfo = wifiManager.dhcpInfo
+                val gatewayAddress = InetAddress.getByAddress(intToByteArray(dhcpInfo.gateway)).hostAddress
+                val myRouter = RouterEntity(brand,selectedRouter, "", "")
+                AccessPointFactory.getAccessPoint(
+                    router = myRouter,
+                    gateway = gatewayAddress.toString(),
+                    callbackPort = APP_CALLBACK_PORT
+                )
+                accesspoint = AccessPointFactory.getAccessPoint(
+                    router = myRouter,
+                    gateway = gatewayAddress.toString(),
+                    callbackPort = APP_CALLBACK_PORT
+                )
+                mAccessPoint = accesspoint
                 Log.d("Selected Router:", selectedRouter)
                 // Do something with the selected item
                 //Toast.makeText(this@MainActivity, "Selected: $selectedBrand", Toast.LENGTH_LONG).show()
@@ -481,6 +527,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onNothingSelected(parentView: AdapterView<*>?) {
                 // Handle the case when nothing is selected
+                extractedRouter.setText("")
             }
         }
     }
@@ -489,9 +536,14 @@ class MainActivity : AppCompatActivity() {
     fun extractGatewayAndRouterInfo(context: Context): Pair<String?, Array<String?>?> {
         var gatewayAddress: String? = null
         var routerInfo: Array<String?>? = null
+        val progress : ProgressBar = findViewById(R.id.progressbar)
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
+
+                runOnUiThread(){
+                    progress.visibility = View.VISIBLE
+                }
                 // Attempt 1: Get gateway from ConnectivityManager (API 29+)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     Log.d("Step1", "In attempt 1")
@@ -507,16 +559,45 @@ class MainActivity : AppCompatActivity() {
                             // Attempt to extract router info using UPnP
                             routerInfo = getUpnpInfo()
                             Log.d("RouterInfoDetails", "Router Info: ${routerInfo?.joinToString(", ")}")
-                            extractedBrand.setText(routerInfo?.get(0))
-                            extractedRouter.setText(routerInfo?.get(1))
-                            val myRouter = RouterEntity(routerInfo?.get(0),routerInfo?.get(1), "", "")
-                            AccessPointFactory.getAccessPoint(
-                                router = myRouter,
-                                gateway = gatewayAddress.toString(),
-                                callbackPort = APP_CALLBACK_PORT
-                            )
-                            Log.d("InfoStep1", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
-                            break
+
+                            if (routerInfo?.get(0) == null && routerInfo?.get(1) == null ){
+                                Log.d("NoBrand", "I am here")
+                                runOnUiThread(){
+                                    displaySupportedBrands()
+                                }
+                            }
+
+                            else if (routerInfo?.get(1) == null){
+                                Log.d("NoRouter", "I am here")
+                                runOnUiThread(){
+                                    val brandE = routerInfo?.get(0)
+                                    if (brandE != null) {
+                                        displaySupportedRouters(brandE)
+                                    }
+                                }
+                            }
+
+                            else{
+                                extractedBrand.setText(routerInfo?.get(0))
+                                extractedRouter.setText(routerInfo?.get(1))
+                                val myRouter = RouterEntity(routerInfo?.get(0),routerInfo?.get(1), "", "")
+                                AccessPointFactory.getAccessPoint(
+                                    router = myRouter,
+                                    gateway = gatewayAddress.toString(),
+                                    callbackPort = APP_CALLBACK_PORT
+                                )
+                                //New Lines added
+                                accesspoint = AccessPointFactory.getAccessPoint(
+                                    router = myRouter,
+                                    gateway = gatewayAddress.toString(),
+                                    callbackPort = APP_CALLBACK_PORT
+                                )
+                                mAccessPoint = accesspoint
+                                Log.d("checkAccess", mAccessPoint.toString())
+                                Log.d("InfoStep1", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
+                                break
+                            }
+
                         }
                     }
                     if (gatewayAddress == null || routerInfo == null) {
@@ -537,15 +618,36 @@ class MainActivity : AppCompatActivity() {
                     routerInfo = getUpnpInfo()
                     // ... rest of your code ...
                     Log.d("RouterInfoDetails", "Router Info: ${routerInfo?.joinToString(", ")}")
-                    extractedBrand.setText(routerInfo?.get(0))
-                    extractedRouter.setText(routerInfo?.get(1))
-                    val myRouter = RouterEntity(routerInfo?.get(0),routerInfo?.get(1), "", "")
-                    AccessPointFactory.getAccessPoint(
-                        router = myRouter,
-                        gateway = gatewayAddress.toString(),
-                        callbackPort = APP_CALLBACK_PORT
-                    )
-                    Log.d("LowerAndroidVersions", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
+
+                    if (routerInfo?.get(0) == null && routerInfo?.get(1) == null ){
+                        displaySupportedBrands()
+                    }
+
+                    else if (routerInfo?.get(1) == null){
+                        val brandE = routerInfo?.get(0)
+                        if (brandE != null) {
+                            displaySupportedRouters(brandE)
+                        }
+                    }
+                    else{
+                        extractedBrand.setText(routerInfo?.get(0))
+                        extractedRouter.setText(routerInfo?.get(1))
+                        val myRouter = RouterEntity(routerInfo?.get(0),routerInfo?.get(1), "", "")
+                        AccessPointFactory.getAccessPoint(
+                            router = myRouter,
+                            gateway = gatewayAddress.toString(),
+                            callbackPort = APP_CALLBACK_PORT
+                        )
+                        //New Lines added
+                        accesspoint = AccessPointFactory.getAccessPoint(
+                            router = myRouter,
+                            gateway = gatewayAddress.toString(),
+                            callbackPort = APP_CALLBACK_PORT
+                        )
+                        mAccessPoint = accesspoint
+                        Log.d("checkAccess", mAccessPoint.toString())
+                        Log.d("LowerAndroidVersions", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
+                    }
                 }
 
                 // Attempt 2: Get gateway from DhcpInfo (for older APIs)
@@ -588,6 +690,11 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Log.e("GatewayInfo", "Error extracting gateway and router information: ${e.message}", e)
+            }
+            finally {
+                runOnUiThread {
+                    progress.visibility = View.GONE
+                }
             }
         }
 

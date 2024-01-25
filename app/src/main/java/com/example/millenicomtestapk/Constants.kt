@@ -211,6 +211,7 @@ object Constants {
     const val Fatst3686V1B = "F@ST3686"
 
     // TPLink models
+    const val ArcherC6v2 = "ArcherC6v2"
     const val VN020G2u = "VN020-G2u"
     const val VC220G3u = "VC220-G3u"
     const val VN020F3 = "VN020-F3"

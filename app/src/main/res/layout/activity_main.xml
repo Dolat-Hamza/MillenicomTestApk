@@ -1,6 +1,7 @@
 <!-- res/layout/activity_main.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -26,39 +27,51 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/brand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Brand:"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/wifiInfoTextView" />
+
+            <TextView
                 android:id="@+id/brandExtracted"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Brand"
-                android:textStyle="bold"
+                android:hint="UNKNOWN"
                 android:textSize="16dp"
-                android:layout_marginStart="12dp"
-                app:layout_constraintTop_toBottomOf="@+id/wifiInfoTextView"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:layout_marginStart="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/brand"
+                app:layout_constraintStart_toEndOf="@+id/brand"
+                app:layout_constraintTop_toTopOf="@+id/brand" />
+
+            <TextView
+                android:id="@+id/router"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="Model:"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/brand" />
 
             <TextView
                 android:id="@+id/routerExtracted"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Router"
-                android:textStyle="bold"
+                android:hint="UNKNOWN"
                 android:textSize="16dp"
-                android:layout_marginEnd="12dp"
-                app:layout_constraintTop_toBottomOf="@+id/wifiInfoTextView"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:layout_marginStart="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/router"
+                app:layout_constraintStart_toEndOf="@+id/router"
+                app:layout_constraintTop_toTopOf="@+id/router" />
 
-            <Button
-                android:id="@+id/btnOptimizeRouter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/wifiInfoTextView"
-                android:layout_centerHorizontal="true"
-                android:visibility="gone"
-                android:layout_marginTop="32dp"
-                android:text="Optimize Router"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/wifiInfoTextView" />
 
             <Button
                 android:id="@+id/btnWebViewOpen"
@@ -66,31 +79,75 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/wifiInfoTextView"
                 android:layout_centerHorizontal="true"
+                android:text="Setup Router"
+                android:layout_marginTop="32dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/router" />
+
+            <LinearLayout
+                android:id="@+id/brandLinear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginTop="16dp"
-                android:text="Open Web View"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnOptimizeRouter" />
-
-            <Spinner
-                android:id="@+id/brandSpinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
                 android:visibility="gone"
+                android:layout_marginHorizontal="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnWebViewOpen" />
+                app:layout_constraintTop_toBottomOf="@+id/btnWebViewOpen">
 
-            <Spinner
-                android:id="@+id/routerSpinner"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Select Brand:"
+                    android:layout_marginHorizontal="4dp"
+                    />
+
+                <Spinner
+                    android:id="@+id/brandSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    android:layout_weight="2"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/routerLinear"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:visibility="gone"
-                android:layout_marginTop="32dp"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/brandSpinner" />
+                app:layout_constraintTop_toBottomOf="@+id/brandLinear">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Select Router:"
+                    android:layout_marginHorizontal="4dp"
+                    />
+
+                <Spinner
+                    android:id="@+id/routerSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    android:layout_weight="2"
+                    />
+
+
+            </LinearLayout>
+
 
             <WebView
                 android:id="@+id/webView"
@@ -107,6 +164,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="Username"
+                android:visibility="gone"
                 android:layout_marginVertical="4dp"
                 app:layout_constraintBottom_toTopOf="@+id/password"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -117,10 +175,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="Password"
+                android:visibility="gone"
                 android:layout_marginBottom="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
+
+            <ProgressBar
+                android:id="@+id/progressbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnWebViewOpen" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
