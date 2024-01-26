@@ -46,6 +46,31 @@ import java.net.InetAddress
 import java.net.NetworkInterface
 import java.util.Collections
 
+//new imports
+import java.util.Locale
+import com.example.millenicomtestapk.Constants.ACTIONTEC
+import com.example.millenicomtestapk.Constants.AIRTIES
+import com.example.millenicomtestapk.Constants.ARRIS
+import com.example.millenicomtestapk.Constants.ASUS
+import com.example.millenicomtestapk.Constants.BILLION
+import com.example.millenicomtestapk.Constants.CASTLENET
+import com.example.millenicomtestapk.Constants.COMPAL
+import com.example.millenicomtestapk.Constants.EDGECORE
+import com.example.millenicomtestapk.Constants.EFM
+import com.example.millenicomtestapk.Constants.HUAWEI
+import com.example.millenicomtestapk.Constants.LINKSYS
+import com.example.millenicomtestapk.Constants.MOTOROLA
+import com.example.millenicomtestapk.Constants.NETGEAR
+import com.example.millenicomtestapk.Constants.REALTEK
+import com.example.millenicomtestapk.Constants.ROUTERBOARD
+import com.example.millenicomtestapk.Constants.SERCOMM
+import com.example.millenicomtestapk.Constants.TPLINK
+import com.example.millenicomtestapk.Constants.TWOWIRE
+import com.example.millenicomtestapk.Constants.UNKNOWN
+import com.example.millenicomtestapk.Constants.VERIZON
+import com.example.millenicomtestapk.Constants.ZTE
+import com.example.millenicomtestapk.Constants.ZYXEL
+
 
 const val PERMISSION_LOCATION_SERVICES = 100
 
@@ -72,7 +97,10 @@ class MainActivity : AppCompatActivity() {
     lateinit var extractedBrand : TextView
     lateinit var extractedRouter : TextView
     var webViewButton : Button? = null
-
+    var finalBrand : String = ""
+    var finalRouter : String = ""
+    var finalGateway : String = ""
+    lateinit var  webView : WebView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
         var userName : EditText = findViewById(R.id.username)
         var password : EditText = findViewById(R.id.password)
+        webView = findViewById<WebView>(R.id.webView)
 
         applicationContext = getApplicationContext()
 //        geocoder = Geocoder(applicationContext)
@@ -194,7 +223,6 @@ class MainActivity : AppCompatActivity() {
             //webViewButton!!.visibility = View.VISIBLE
             webViewButton!!.setOnClickListener(){
                 //val webView = WebView(this)
-                val webView = findViewById<WebView>(R.id.webView)
                 val webSettings = webView.settings
                 webSettings.javaScriptEnabled = true
                 webViewButton!!.visibility = View.GONE
@@ -211,6 +239,12 @@ class MainActivity : AppCompatActivity() {
                 webView.webChromeClient = object : WebChromeClient() {
                     override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
                         Log.d("WebViewConsole", "${consoleMessage?.message()}")
+                        if (consoleMessage?.message().toString() == "AmbeentFailure"){
+                            showCredentialsPopup()
+                        }
+                        else if (consoleMessage?.message().toString() == "AmbeentFailure"){
+                            displaySnackbar(snackLayout, "Your router setup is successfull.")
+                        }
                         return super.onConsoleMessage(consoleMessage)
                     }
                 }
@@ -601,9 +635,9 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             else{
-                                extractedBrand.setText(routerInfo?.get(0))
+                                extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
                                 extractedRouter.setText(routerInfo?.get(1))
-                                val myRouter = RouterEntity(routerInfo?.get(0),routerInfo?.get(1), "", "")
+                                val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "")
                                 AccessPointFactory.getAccessPoint(
                                     router = myRouter,
                                     gateway = gatewayAddress.toString(),
@@ -615,6 +649,9 @@ class MainActivity : AppCompatActivity() {
                                     gateway = gatewayAddress.toString(),
                                     callbackPort = APP_CALLBACK_PORT
                                 )
+                                finalBrand = getBrandShortName(routerInfo?.get(0))
+                                finalRouter = routerInfo?.get(1)!!
+                                finalGateway = gatewayAddress.toString()
                                 mAccessPoint = accesspoint
                                 Log.d("checkAccess", mAccessPoint.toString())
                                 Log.d("InfoStep1", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
@@ -657,9 +694,9 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     else{
-                        extractedBrand.setText(routerInfo?.get(0))
+                        extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
                         extractedRouter.setText(routerInfo?.get(1))
-                        val myRouter = RouterEntity(routerInfo?.get(0),routerInfo?.get(1), "", "")
+                        val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "")
                         AccessPointFactory.getAccessPoint(
                             router = myRouter,
                             gateway = gatewayAddress.toString(),
@@ -672,6 +709,8 @@ class MainActivity : AppCompatActivity() {
                             callbackPort = APP_CALLBACK_PORT
                         )
                         mAccessPoint = accesspoint
+                        finalBrand = getBrandShortName(routerInfo?.get(0))
+                        finalRouter = routerInfo?.get(1)!!
                         Log.d("checkAccess", mAccessPoint.toString())
                         Log.d("LowerAndroidVersions", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
                     }
@@ -739,6 +778,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showCredentialsPopup() {
+        webView.visibility = View.GONE
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Authentication Required")
         builder.setMessage("Please enter your username and password.")
@@ -769,6 +809,70 @@ class MainActivity : AppCompatActivity() {
             // You may want to handle the authentication logic here
 
             // Continue with your WebView logic...
+            val myRouter = RouterEntity(finalBrand,finalRouter, username, password)
+            AccessPointFactory.getAccessPoint(
+                router = myRouter,
+                gateway = finalGateway,
+                callbackPort = APP_CALLBACK_PORT
+            )
+            //New Lines added
+            accesspoint = AccessPointFactory.getAccessPoint(
+                router = myRouter,
+                gateway = finalGateway,
+                callbackPort = APP_CALLBACK_PORT
+            )
+            mAccessPoint = accesspoint
+
+            if (mAccessPoint != null){
+                webView.visibility = View.VISIBLE
+                val webSettings = webView.settings
+                webSettings.javaScriptEnabled = true
+                webViewButton!!.visibility = View.GONE
+                webView.visibility = View.VISIBLE
+                webView.webViewClient = WebViewClient()
+
+                // new lines addition
+                WebView.setWebContentsDebuggingEnabled(true)
+                webView.settings.domStorageEnabled = true
+
+                val formattedGateway = formatIpAddress(gatewayIpAddress)
+                // Replace "http://$gatewayIpAddress" with the actual IP address of the router
+                webView.loadUrl("http://$formattedGateway")
+                webView.webChromeClient = object : WebChromeClient() {
+                    override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                        Log.d("WebViewConsole", "${consoleMessage?.message()}")
+                        if (consoleMessage?.message().toString() == "AmbeentFailure"){
+                            showCredentialsPopup()
+                        }
+                        else if (consoleMessage?.message().toString() == "AmbeentFailure"){
+                            displaySnackbar(snackLayout, "Your router setup is successfull.")
+                        }
+                        return super.onConsoleMessage(consoleMessage)
+                    }
+                }
+                val cookie = CookieManager.getInstance().getCookie(formattedGateway)
+                var url = "http://$formattedGateway"
+
+                Log.d("URLCheck", "url: $url")
+                webView.webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        val jsCode = mAccessPoint?.getJSCodeForUrl(url)
+                        Log.d("JSCode", jsCode.toString())
+                        super.onPageFinished(view, url)
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && jsCode != null) {
+                            webView.evaluateJavascript(jsCode) { value ->
+                                Log.d("Check", value!!)
+                            }
+                        }
+                    }
+                }
+                Log.d("GatewayAddress" ,"https://$formattedGateway")
+            }
+            else{
+                displaySnackbar(snackLayout, "Access point not found.")
+            }
+
         }
 
         builder.setNegativeButton("Cancel") { dialog, _ ->
@@ -778,6 +882,37 @@ class MainActivity : AppCompatActivity() {
         }
 
         builder.show()
+    }
+
+    fun getBrandShortName(brand: String?): String {
+        return when {
+            brand.isNullOrBlank() -> UNKNOWN
+            brand.toLowerCase(Locale.ENGLISH).contains("actiontec") -> ACTIONTEC
+            brand.toLowerCase(Locale.ENGLISH).contains("airties") -> AIRTIES
+            brand.toLowerCase(Locale.ENGLISH).contains("arris") -> ARRIS
+            brand.toLowerCase(Locale.ENGLISH).contains("asus") -> ASUS
+            brand.toLowerCase(Locale.ENGLISH).contains("billion") -> BILLION
+            brand.toLowerCase(Locale.ENGLISH).contains("compal") -> COMPAL
+            brand.toLowerCase(Locale.ENGLISH).contains("zyxel") -> ZYXEL
+            brand.toLowerCase(Locale.ENGLISH).contains("tp-link") -> TPLINK
+            brand.toLowerCase(Locale.ENGLISH).contains("huawei") -> HUAWEI
+            brand.toLowerCase(Locale.ENGLISH).contains("mtrlc") -> MOTOROLA
+            brand.toLowerCase(Locale.ENGLISH).contains("motorola") -> MOTOROLA
+            brand.toLowerCase(Locale.ENGLISH).contains("routerboard") -> ROUTERBOARD
+            brand.toLowerCase(Locale.ENGLISH).contains("verizon") -> VERIZON
+            brand.toLowerCase(Locale.ENGLISH).contains("zte") -> ZTE
+            brand.toLowerCase(Locale.ENGLISH).contains("2wire") -> TWOWIRE
+            brand.toLowerCase(Locale.ENGLISH).contains("efm") -> EFM
+            brand.toLowerCase(Locale.ENGLISH).contains("netgear") -> NETGEAR
+            brand.toLowerCase(Locale.ENGLISH).contains("realtek") -> REALTEK
+            brand.toLowerCase(Locale.ENGLISH).contains("linksys") -> LINKSYS
+            brand.toLowerCase(Locale.ENGLISH).contains("vodafone") -> CASTLENET
+            brand.toLowerCase(Locale.ENGLISH).contains("dwnet") -> SERCOMM
+            brand.toLowerCase(Locale.ENGLISH).contains("broadcom") -> ZTE
+            brand.toLowerCase(Locale.ENGLISH).contains("castlenet") -> CASTLENET
+            brand.toLowerCase(Locale.ENGLISH).contains("edgecore") -> EDGECORE
+            else -> brand
+        }
     }
 
 }
