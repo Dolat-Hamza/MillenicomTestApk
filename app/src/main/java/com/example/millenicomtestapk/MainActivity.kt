@@ -8,12 +8,16 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.text.InputType
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.AdapterView
@@ -25,7 +29,9 @@ import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.example.millenicomtestapk.Constants.APP_CALLBACK_PORT
 import com.google.android.material.snackbar.Snackbar
@@ -153,6 +159,7 @@ class MainActivity : AppCompatActivity() {
         // optimizeRouter()
         //getRouterInfo(this)
         extractGatewayAndRouterInfo(this)
+
         //extractRouterInfo(this)
 
 //        optimizeRouterButton?.setOnClickListener {
@@ -205,6 +212,22 @@ class MainActivity : AppCompatActivity() {
                     override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
                         Log.d("WebViewConsole", "${consoleMessage?.message()}")
                         return super.onConsoleMessage(consoleMessage)
+                    }
+                }
+                // New code addition for Error
+                webView.webViewClient = object :WebViewClient(){
+                    override fun onReceivedError(
+                        view: WebView,
+                        request: WebResourceRequest?,
+                        error: WebResourceError
+                    ) {
+                        val errorDescription = error.description.toString()
+                        //Timber.e("$TAG - Error: $errorDescription")
+
+                        // Show a popup to take username and password
+                        showCredentialsPopup()
+
+                        // Rest of your code...
                     }
                 }
 
@@ -620,13 +643,17 @@ class MainActivity : AppCompatActivity() {
                     Log.d("RouterInfoDetails", "Router Info: ${routerInfo?.joinToString(", ")}")
 
                     if (routerInfo?.get(0) == null && routerInfo?.get(1) == null ){
-                        displaySupportedBrands()
+                        runOnUiThread(){
+                            displaySupportedBrands()
+                        }
                     }
 
                     else if (routerInfo?.get(1) == null){
                         val brandE = routerInfo?.get(0)
-                        if (brandE != null) {
-                            displaySupportedRouters(brandE)
+                        runOnUiThread(){
+                            if (brandE != null) {
+                                displaySupportedRouters(brandE)
+                            }
                         }
                     }
                     else{
@@ -709,6 +736,48 @@ class MainActivity : AppCompatActivity() {
             ((value shr 16) and 0xFF).toByte(),
             ((value shr 24) and 0xFF).toByte()
         )
+    }
+
+    private fun showCredentialsPopup() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Authentication Required")
+        builder.setMessage("Please enter your username and password.")
+
+        val inputUsername = EditText(this)
+        inputUsername.hint = "Username"
+        val inputPassword = EditText(this)
+        inputPassword.hint = "Password"
+        inputPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+
+        builder.setView(
+            LinearLayoutCompat(this).apply {
+                orientation = LinearLayoutCompat.VERTICAL
+                layoutParams = LinearLayoutCompat.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                addView(inputUsername)
+                addView(inputPassword)
+            }
+        )
+
+        builder.setPositiveButton("OK") { _, _ ->
+            val username = inputUsername.text.toString()
+            val password = inputPassword.text.toString()
+
+            // Process the entered username and password as needed
+            // You may want to handle the authentication logic here
+
+            // Continue with your WebView logic...
+        }
+
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.cancel()
+
+            // Handle the cancelation or provide a fallback mechanism
+        }
+
+        builder.show()
     }
 
 }
