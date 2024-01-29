@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity() {
                             Log.d("RouterInfoDetails", "Router Info: ${routerInfo?.joinToString(", ")}")
 
                             if (routerInfo?.get(0).isNullOrEmpty() && routerInfo?.get(1).isNullOrEmpty()){
-                                Log.d("NoBrand", "I am here")
+                                Log.d("NoBrand", "No Brand")
                                 runOnUiThread(){
                                     displaySupportedBrands()
                                 }
