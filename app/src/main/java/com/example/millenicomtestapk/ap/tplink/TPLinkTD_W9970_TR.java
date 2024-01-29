@@ -9,8 +9,8 @@ public class TPLinkTD_W9970_TR extends TPLinkTD_W9970 {
 
     private State state = State.LOGIN_STATE;
 
-    public TPLinkTD_W9970_TR(String gateway, String username, String password, int callbackPort) {
-        super(gateway, username, password, callbackPort);
+    public TPLinkTD_W9970_TR(String gateway, String username, String password, String setupUsername, String setupPassword, int callbackPort) {
+        super(gateway, username, password, setupUsername, setupPassword, callbackPort);
         if (TextUtils.isEmpty(username)) setUsername(DEFAULT_USERNAME);
         if (TextUtils.isEmpty(password)) setPassword(DEFAULT_PASSWORD);
     }

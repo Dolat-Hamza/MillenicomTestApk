@@ -1,6 +1,7 @@
 package com.example.millenicomtestapk
 
 import android.os.AsyncTask
+import android.util.Log
 import com.wireless.ambeentutil.HttpHelper
 import java.io.IOException
 
@@ -20,14 +21,14 @@ abstract class AccessPoint {
         gateway: String,
         username: String?,
         password: String?,
-        setupusername: String?,
-        setuppassword: String?,
+        setupUsername: String?,
+        setupPassword: String?,
         callbackPort: Int
     ) : this(gateway, callbackPort) {
         this.username = username
         this.password = password
-        this.setupUsername = setupusername
-        this.setupPassword = setuppassword
+        this.setupUsername = setupUsername
+        this.setupPassword = setupPassword
     }
 
     constructor(gateway: String, password: String?, callbackPort: Int) : this(
@@ -41,6 +42,7 @@ abstract class AccessPoint {
         this.gateway = gateway
         this.callbackPort = callbackPort
         setFormattedGateway(gateway)
+
     }
 
     open fun forPopUp(): String {

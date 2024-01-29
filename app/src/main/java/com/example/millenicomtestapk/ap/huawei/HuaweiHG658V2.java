@@ -10,15 +10,15 @@ public class HuaweiHG658V2 extends AccessPoint {
 
     private static final String LOGIN_SUFFIX = "/";
     private static final String MAIN_SUFFIX = "/html/wizard/wizard.html";
-    private static final String SETTINGS_SUFFIX = "/html/wizard/wifi.html";
+    private static final String SETTINGS_SUFFIX = "/html/advance.html#internet";
 
     private static final String DEFAULT_USERNAME = "admin";
     private static final String DEFAULT_PASSWORD = "superonline";
 
     private boolean isLoggedIn;
 
-    public HuaweiHG658V2(String gateway, String username, String password, int callbackPort) {
-        super(gateway, username, password, callbackPort);
+    public HuaweiHG658V2(String gateway, String username, String password, String setupUsername, String setupPassword, int callbackPort) {
+        super(gateway, username, password, setupUsername, setupPassword, callbackPort);
         if (TextUtils.isEmpty(username)) setUsername(DEFAULT_USERNAME);
         if (TextUtils.isEmpty(password)) setPassword(DEFAULT_PASSWORD);
     }
@@ -27,7 +27,6 @@ public class HuaweiHG658V2 extends AccessPoint {
     public String getJSCodeForUrl(String url) {
         if (!isLoggedIn && url.equals(getFormattedGateway() + LOGIN_SUFFIX))
             return "javascript:{" +
-                    initAmbeent()+
                     // Writing username.
                     "document.getElementById('index_username').value= '" + getUsername() + "';" +
                     // Writing password.
@@ -39,7 +38,7 @@ public class HuaweiHG658V2 extends AccessPoint {
                     "if(document.getElementById('errorCategory').innerHTML.length > 0){ " +
                     // Ask for credentials
                     "setTimeout(function() {" +
-                    ambeent("failure") +
+                    "console.log('AmbeentFailure');" +
                     "},2000);" +
                     //getLocalHostAskScript() +
                     "}" +
@@ -64,20 +63,23 @@ public class HuaweiHG658V2 extends AccessPoint {
                     "};";
         } else if (url.equals(getFormattedGateway() + SETTINGS_SUFFIX))
             return "javascript:{" +
-                    initAmbeent()+
-                    "try {" +
-                    "setTimeout(function(){" +
-                    "if (document.getElementById('channel24g_ctrl') != null){" +
-                    "document.getElementById('channel24g_ctrl')[" + getOptimalChannel() + "].selected = true;" +
-                    "$(channel24g_ctrl).change();" +
-                    "document.getElementById('wifi_wizard_save').click();" +
                     "setTimeout(function() {" +
-                    ambeent(String.valueOf(getOptimalChannel())) +
+                    "document.getElementById('wan_setup_InternetGatewayDevice_WANDevice_1_WANConnectionDevice_1_WANPPPConnection_1__change').click();" +
+                    "},3000);" +
+                    "var repeatInterval = setInterval(function(){" +
+                    "if(document.getElementById('wan_internal_edit_view_wan_Username_ctrl') !== undefined && document.getElementById('wan_internal_edit_view_wan_Username_ctrl') !== null){" +
+                    "clearInterval(repeatInterval);" +
+                    "Ember.View.views['wan_internal_edit_view'].content.Username = '" + getSetupUsername() + "';" +
+                    "Ember.View.views['wan_internal_edit_view'].content.Password = '" + getSetupPassword() + "';" +
+                    "setTimeout(function() {" +
+                    "document.getElementById('wan_submit_item').click();" +
+                    "setTimeout(function() {" +
+                    "document.getElementById('signout_ctrl').click();" +
+                    "console.log('AmbeentSuccess');" +
+                    "},3000);" +
+                    "},3000);" +
+                    "}" +
                     "},2000);" +
-                    "}" +
-                    "}, 4000);" +
-                    "}catch(err) {" +
-                    "}" +
                     "};";
 
         return null;

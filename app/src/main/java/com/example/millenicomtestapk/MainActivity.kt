@@ -281,10 +281,10 @@ class MainActivity : AppCompatActivity() {
                 )
                 finalBrand = brand
                 finalRouter = selectedRouter
-                finalGateway = gatewayIpAddress.toString()
+                finalGateway = gatewayAddress.toString()
                 mAccessPoint = accesspoint
 
-                Log.d("Selected Router:", selectedRouter)
+                Log.d("Selected Router1:", selectedRouter)
                 // Do something with the selected item
                 //Toast.makeText(this@MainActivity, "Selected: $selectedBrand", Toast.LENGTH_LONG).show()
             }
@@ -408,6 +408,7 @@ class MainActivity : AppCompatActivity() {
                             extractedRouter.setText(routerInfo?.get(1))
                         }
                         val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "", setupUsername, setupPassword)
+                        Log.d("myRouter", myRouter.toString())
                         AccessPointFactory.getAccessPoint(
                             router = myRouter,
                             gateway = gatewayAddress.toString(),
@@ -639,6 +640,7 @@ class MainActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 val jsCode = mAccessPoint?.getJSCodeForUrl(url)
+                Log.d("mAccessPoint", mAccessPoint.toString())
                 Log.d("JSCode", jsCode.toString())
                 super.onPageFinished(view, url)
 

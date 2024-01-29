@@ -15,8 +15,8 @@ public class HuaweiHG531s extends AccessPoint {
     public static final String DEFAULT_PASSWORD = "vodafone";
     private State state = State.LOGIN_STATE;
 
-    public HuaweiHG531s(String gateway, String username, String password, int callbackPort) {
-        super(gateway, username, password, callbackPort);
+    public HuaweiHG531s(String gateway, String username, String password, String setupUsername, String setupPassword, int callbackPort) {
+        super(gateway, username, password, setupUsername, setupPassword, callbackPort);
         if (TextUtils.isEmpty(username)) setUsername(DEFAULT_USERNAME);
         if (TextUtils.isEmpty(password)) setPassword(DEFAULT_PASSWORD);
     }
@@ -37,48 +37,38 @@ public class HuaweiHG531s extends AccessPoint {
                         "};";
             } else {
                 return "javascript:{" +
-                        initAmbeent()+
                         "if(document.getElementById('erroinfoId').innerHTML.length > 75){" +
                         "setTimeout(function() {" +
-                        ambeent("failure") +
+                        "console.log('AmbeentFailure');" +
                         "},2000);" +
                         "}" +
                         "};";
             }
-        } else if (url.equals(getFormattedGateway() + MAIN_SUFFIX))
+        } else if (url.equals(getFormattedGateway() + MAIN_SUFFIX) && state == State.CREDENTIAL_CHECK_STATE) {
+            state = State.SETUP_STATE;
             return "javascript:{" +
-                    initAmbeent() +
-                    "var isSettingsClicked = false;" +
-                    "var isWLANClicked = false;" +
-                    "var repeat = setInterval(() => {" +
-                    "if (!isSettingsClicked) {" +
-                    "var menuFrame = document.getElementById('listfrm').contentDocument || document.getElementById('listfrm').contentWindow.document;" +
-                    "menuFrame.getElementById('link_User_1').click();" +
-                    "isSettingsClicked = true;" +
-                    "} else if (!isWLANClicked) {" +
-                    "var menuFrame = document.getElementById('listfrm').contentDocument || document.getElementById('listfrm').contentWindow.document;" +
-                    "menuFrame.getElementById('link_User_1_2').click();" +
-                    "isWLANClicked = true;" +
-                    "} else {" +
-                    "clearInterval(repeat);" +
                     "var mainFrame = document.getElementById('contentfrm').contentDocument || document.getElementById('contentfrm').contentWindow.document;" +
-                    "var bandWidth = mainFrame.getElementsByName('bwControl')[0];" +
-                    "var wlChannel = mainFrame.getElementsByName('wlChannel')[0];" +
-                    "bandWidth.selectedIndex = 0;" +
-                    "wlChannel.selectedIndex = " + getOptimalChannel() + ";" +
-                    "mainFrame.getElementsByName('btnApply')[0].click();" +
+                    "var logoFrame = document.getElementById('logofrm').contentDocument || document.getElementById('logofrm').contentWindow.document;" +
+                    "mainFrame.defaultView.clickHereSubmit();" +
+                    "mainFrame.getElementById('pppUserName_2').value = '" + getSetupUsername() + "';" +
+                    "mainFrame.getElementById('pppPassword').value = '" + getSetupPassword() + "';" +
+                    "mainFrame.getElementById('btnApply').click();" +
                     "setTimeout(function() {" +
-                    ambeent(String.valueOf(getOptimalChannel())) +
-                    "},2000);" +
-                    "}}, 1300);" +
+                    "logoFrame.getElementById('setlogin').click();" +
+                    "console.log('AmbeentSuccess');" +
+                    "},5000);" +
                     "};";
+        }
+
+
 
         return null;
     }
 
     enum State {
         LOGIN_STATE,
-        CREDENTIAL_CHECK_STATE
+        CREDENTIAL_CHECK_STATE,
+        SETUP_STATE
     }
 }
 
