@@ -240,10 +240,9 @@ class MainActivity : AppCompatActivity() {
                     override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
                         Log.d("WebViewConsole", "${consoleMessage?.message()}")
                         if (consoleMessage?.message().toString() == "AmbeentFailure"){
-                            webView.visibility = View.INVISIBLE
                             showCredentialsPopup()
                         }
-                        else if (consoleMessage?.message().toString() == "AmbeentFailure"){
+                        else if (consoleMessage?.message().toString() == "AmbeentSuccess"){
                             webView.visibility = View.INVISIBLE
                             displaySnackbar(snackLayout, "Your router setup is successfull.")
                         }
@@ -619,14 +618,14 @@ class MainActivity : AppCompatActivity() {
                             routerInfo = getUpnpInfo()
                             Log.d("RouterInfoDetails", "Router Info: ${routerInfo?.joinToString(", ")}")
 
-                            if (routerInfo?.get(0) == null && routerInfo?.get(1) == null ){
+                            if (routerInfo?.get(0).isNullOrEmpty() && routerInfo?.get(1).isNullOrEmpty()){
                                 Log.d("NoBrand", "I am here")
                                 runOnUiThread(){
                                     displaySupportedBrands()
                                 }
                             }
 
-                            else if (routerInfo?.get(1) == null){
+                            else if (routerInfo?.get(1).isNullOrEmpty()){
                                 Log.d("NoRouter", "I am here")
                                 runOnUiThread(){
                                     val brandE = routerInfo?.get(0)
@@ -681,13 +680,13 @@ class MainActivity : AppCompatActivity() {
                     // ... rest of your code ...
                     Log.d("RouterInfoDetails", "Router Info: ${routerInfo?.joinToString(", ")}")
 
-                    if (routerInfo?.get(0) == null && routerInfo?.get(1) == null ){
+                    if (routerInfo?.get(0).isNullOrEmpty() && routerInfo?.get(1).isNullOrEmpty() ){
                         runOnUiThread(){
                             displaySupportedBrands()
                         }
                     }
 
-                    else if (routerInfo?.get(1) == null){
+                    else if (routerInfo?.get(1).isNullOrEmpty()){
                         val brandE = routerInfo?.get(0)
                         runOnUiThread(){
                             if (brandE != null) {
@@ -848,7 +847,7 @@ class MainActivity : AppCompatActivity() {
                             webView.visibility = View.INVISIBLE
                             showCredentialsPopup()
                         }
-                        else if (consoleMessage?.message().toString() == "AmbeentFailure"){
+                        else if (consoleMessage?.message().toString() == "AmbeentSuccess"){
                             webView.visibility = View.INVISIBLE
                             displaySnackbar(snackLayout, "Your router setup is successfull.")
                         }
