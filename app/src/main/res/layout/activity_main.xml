@@ -79,6 +79,7 @@
                 android:hint="Username"
                 android:inputType="textEmailAddress"
                 android:layout_marginTop="32dp"
+                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/routerExtracted" />
@@ -90,6 +91,7 @@
                 android:hint="Password"
                 android:inputType="textPassword"
                 android:layout_marginTop="8dp"
+                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/setupUsername" />

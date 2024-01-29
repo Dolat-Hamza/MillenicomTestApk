@@ -102,8 +102,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var  webView : WebView
     var setupUsername : String = ""
     var setupPassword : String = ""
-    lateinit var setupUsernameID : EditText
-    lateinit var setupPasswordID : EditText
+//    lateinit var setupUsernameID : EditText
+//    lateinit var setupPasswordID : EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,10 +113,15 @@ class MainActivity : AppCompatActivity() {
         //val optimizeRouterButton = findViewById<Button>(R.id.btnOptimizeRouter)
         webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
         webView = findViewById<WebView>(R.id.webView)
-        setupUsernameID = findViewById<EditText>(R.id.setupUsername)
-        setupPasswordID = findViewById(R.id.setupPassword)
-        setupUsername = setupUsernameID.text.toString()
-        setupPassword = setupPasswordID.text.toString()
+
+        val intent = intent
+        setupUsername = intent.getStringExtra("setupUsername").toString()
+        setupPassword = intent.getStringExtra("setupPassword").toString()
+        Toast.makeText(this, setupUsername + " " + setupPassword, Toast.LENGTH_SHORT).show()
+//        setupUsernameID = findViewById<EditText>(R.id.setupUsername)
+//        setupPasswordID = findViewById(R.id.setupPassword)
+//        setupUsername = setupUsernameID.text.toString()
+//        setupPassword = setupPasswordID.text.toString()
 
 
         applicationContext = getApplicationContext()
@@ -141,12 +146,7 @@ class MainActivity : AppCompatActivity() {
                 //val webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
                 //webViewButton!!.visibility = View.VISIBLE
                 webViewButton!!.setOnClickListener(){
-                    if (setupUsernameID.text.isBlank() && setupPasswordID.text.isBlank()){
-                        displaySnackbar(snackLayout, "You must enter username and password")
-                    }
-                    else{
                         openWebView()
-                    }
                 }
 
             }
@@ -342,8 +342,10 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             else{
-                                extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
-                                extractedRouter.setText(routerInfo?.get(1))
+                                runOnUiThread {
+                                    extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
+                                    extractedRouter.setText(routerInfo?.get(1))
+                                }
                                 val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "", setupUsername, setupPassword)
                                 AccessPointFactory.getAccessPoint(
                                     router = myRouter,
@@ -401,8 +403,10 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     else{
-                        extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
-                        extractedRouter.setText(routerInfo?.get(1))
+                        runOnUiThread {
+                            extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
+                            extractedRouter.setText(routerInfo?.get(1))
+                        }
                         val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "", setupUsername, setupPassword)
                         AccessPointFactory.getAccessPoint(
                             router = myRouter,

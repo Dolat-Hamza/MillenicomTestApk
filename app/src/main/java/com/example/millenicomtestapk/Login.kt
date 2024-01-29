@@ -26,8 +26,10 @@ class Login : AppCompatActivity() {
             usernameText = username.text.toString()
             passwordText = password.text.toString()
 
-            if (usernameText == "admin" && passwordText == "admin") {
+            if (usernameText.contains("@") && passwordText.isNotBlank()) {
                 val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("setupUsername", usernameText)
+                intent.putExtra("setupPassword", passwordText)
                 startActivity(intent)
             } else {
                 Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
