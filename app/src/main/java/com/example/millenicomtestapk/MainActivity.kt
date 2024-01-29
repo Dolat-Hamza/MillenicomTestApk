@@ -110,8 +110,6 @@ class MainActivity : AppCompatActivity() {
         // Set up the "Optimize Router" and "Web view" button click listener
         //val optimizeRouterButton = findViewById<Button>(R.id.btnOptimizeRouter)
         webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
-        var userName : EditText = findViewById(R.id.username)
-        var password : EditText = findViewById(R.id.password)
         webView = findViewById<WebView>(R.id.webView)
 
         applicationContext = getApplicationContext()
