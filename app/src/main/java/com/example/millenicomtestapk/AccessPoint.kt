@@ -8,20 +8,26 @@ abstract class AccessPoint {
     var username: String? = null
     var password: String? = null
     var gateway: String? = null
+    var setupUsername: String? = null
+    var setupPassword : String? = null
     var formattedGateway: String? = null
         private set
     var callbackPort: Int = 0
     var optimalChannel: Int = 0
 
-    constructor() {}
+    constructor(gateway: String, username: String?, password: String?, callbackPort: Int) {}
     constructor(
         gateway: String,
         username: String?,
         password: String?,
+        setupusername: String?,
+        setuppassword: String?,
         callbackPort: Int
     ) : this(gateway, callbackPort) {
         this.username = username
         this.password = password
+        this.setupUsername = setupusername
+        this.setupPassword = setuppassword
     }
 
     constructor(gateway: String, password: String?, callbackPort: Int) : this(

@@ -28,6 +28,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -99,7 +100,10 @@ class MainActivity : AppCompatActivity() {
     var finalRouter : String = ""
     var finalGateway : String = ""
     lateinit var  webView : WebView
-
+    var setupUsername : String = ""
+    var setupPassword : String = ""
+    lateinit var setupUsernameID : EditText
+    lateinit var setupPasswordID : EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,6 +113,11 @@ class MainActivity : AppCompatActivity() {
         //val optimizeRouterButton = findViewById<Button>(R.id.btnOptimizeRouter)
         webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
         webView = findViewById<WebView>(R.id.webView)
+        setupUsernameID = findViewById<EditText>(R.id.setupUsername)
+        setupPasswordID = findViewById(R.id.setupPassword)
+        setupUsername = setupUsernameID.text.toString()
+        setupPassword = setupPasswordID.text.toString()
+
 
         applicationContext = getApplicationContext()
 
@@ -127,14 +136,20 @@ class MainActivity : AppCompatActivity() {
         //getRouterInfo(this)
         extractGatewayAndRouterInfo(this)
 
-        if (webViewButton != null){
-            //val webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
-            //webViewButton!!.visibility = View.VISIBLE
-            webViewButton!!.setOnClickListener(){
-                openWebView()
-            }
 
-        }
+        if (webViewButton != null){
+                //val webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
+                //webViewButton!!.visibility = View.VISIBLE
+                webViewButton!!.setOnClickListener(){
+                    if (setupUsernameID.text.isBlank() && setupPasswordID.text.isBlank()){
+                        displaySnackbar(snackLayout, "You must enter username and password")
+                    }
+                    else{
+                        openWebView()
+                    }
+                }
+
+            }
 
 
     }
@@ -253,7 +268,7 @@ class MainActivity : AppCompatActivity() {
                 // New Lines added
                 val dhcpInfo = wifiManager.dhcpInfo
                 val gatewayAddress = InetAddress.getByAddress(intToByteArray(dhcpInfo.gateway)).hostAddress
-                val myRouter = RouterEntity(brand,selectedRouter, "", "")
+                val myRouter = RouterEntity(brand,selectedRouter, "", "", setupUsername,setupPassword)
                 AccessPointFactory.getAccessPoint(
                     router = myRouter,
                     gateway = gatewayAddress.toString(),
@@ -264,7 +279,11 @@ class MainActivity : AppCompatActivity() {
                     gateway = gatewayAddress.toString(),
                     callbackPort = APP_CALLBACK_PORT
                 )
+                finalBrand = brand
+                finalRouter = selectedRouter
+                finalGateway = gatewayIpAddress.toString()
                 mAccessPoint = accesspoint
+
                 Log.d("Selected Router:", selectedRouter)
                 // Do something with the selected item
                 //Toast.makeText(this@MainActivity, "Selected: $selectedBrand", Toast.LENGTH_LONG).show()
@@ -325,7 +344,7 @@ class MainActivity : AppCompatActivity() {
                             else{
                                 extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
                                 extractedRouter.setText(routerInfo?.get(1))
-                                val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "")
+                                val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "", setupUsername, setupPassword)
                                 AccessPointFactory.getAccessPoint(
                                     router = myRouter,
                                     gateway = gatewayAddress.toString(),
@@ -384,7 +403,7 @@ class MainActivity : AppCompatActivity() {
                     else{
                         extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
                         extractedRouter.setText(routerInfo?.get(1))
-                        val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "")
+                        val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "", setupUsername, setupPassword)
                         AccessPointFactory.getAccessPoint(
                             router = myRouter,
                             gateway = gatewayAddress.toString(),
@@ -396,9 +415,10 @@ class MainActivity : AppCompatActivity() {
                             gateway = gatewayAddress.toString(),
                             callbackPort = APP_CALLBACK_PORT
                         )
-                        mAccessPoint = accesspoint
                         finalBrand = getBrandShortName(routerInfo?.get(0))
                         finalRouter = routerInfo?.get(1)!!
+                        finalGateway = gatewayAddress.toString()
+                        mAccessPoint = accesspoint
                         Log.d("checkAccess", mAccessPoint.toString())
                         Log.d("LowerAndroidVersions", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
                     }
@@ -497,7 +517,7 @@ class MainActivity : AppCompatActivity() {
             // You may want to handle the authentication logic here
 
             // Continue with your WebView logic...
-            val myRouter = RouterEntity(finalBrand,finalRouter, username, password)
+            val myRouter = RouterEntity(finalBrand,finalRouter, username, password, setupUsername, setupPassword)
             AccessPointFactory.getAccessPoint(
                 router = myRouter,
                 gateway = finalGateway,
