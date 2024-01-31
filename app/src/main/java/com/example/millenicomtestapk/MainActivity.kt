@@ -283,7 +283,7 @@ class MainActivity : AppCompatActivity() {
                 finalRouter = selectedRouter
                 finalGateway = gatewayAddress.toString()
                 mAccessPoint = accesspoint
-
+                brandISupported = true
                 Log.d("Selected Router1:", selectedRouter)
                 // Do something with the selected item
                 //Toast.makeText(this@MainActivity, "Selected: $selectedBrand", Toast.LENGTH_LONG).show()
