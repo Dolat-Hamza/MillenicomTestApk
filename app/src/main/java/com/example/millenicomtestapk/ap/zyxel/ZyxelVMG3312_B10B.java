@@ -14,7 +14,7 @@ public class ZyxelVMG3312_B10B extends AccessPoint {
     private static final String ERROR_SUFFIX = "/login/login-page.cgi";
     private static final String MAIN_SUFFIX = "/index.html";
 
-    private static final String DEFAULT_USERNAME = "admins";
+    private static final String DEFAULT_USERNAME = "admin";
     private static final String DEFAULT_PASSWORD = "turktelekom";
 
     private State state = State.LOGIN_STATE;
