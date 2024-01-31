@@ -72,29 +72,6 @@
                 app:layout_constraintStart_toEndOf="@+id/router"
                 app:layout_constraintTop_toTopOf="@+id/router" />
 
-            <EditText
-                android:id="@+id/setupUsername"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="Username"
-                android:inputType="textEmailAddress"
-                android:layout_marginTop="32dp"
-                android:visibility="invisible"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/routerExtracted" />
-
-            <EditText
-                android:id="@+id/setupPassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:layout_marginTop="8dp"
-                android:visibility="invisible"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/setupUsername" />
 
             <Button
                 android:id="@+id/btnWebViewOpen"
@@ -106,7 +83,7 @@
                 android:layout_marginTop="32dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/setupPassword" />
+                app:layout_constraintTop_toBottomOf="@+id/routerExtracted" />
 
             <LinearLayout
                 android:id="@+id/brandLinear"

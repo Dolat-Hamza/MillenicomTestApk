@@ -102,8 +102,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var  webView : WebView
     var setupUsername : String = ""
     var setupPassword : String = ""
-//    lateinit var setupUsernameID : EditText
-//    lateinit var setupPasswordID : EditText
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,10 +117,7 @@ class MainActivity : AppCompatActivity() {
         setupUsername = intent.getStringExtra("setupUsername").toString()
         setupPassword = intent.getStringExtra("setupPassword").toString()
         Toast.makeText(this, setupUsername + " " + setupPassword, Toast.LENGTH_SHORT).show()
-//        setupUsernameID = findViewById<EditText>(R.id.setupUsername)
-//        setupPasswordID = findViewById(R.id.setupPassword)
-//        setupUsername = setupUsernameID.text.toString()
-//        setupPassword = setupPasswordID.text.toString()
+
 
 
         applicationContext = getApplicationContext()
@@ -170,7 +166,6 @@ class MainActivity : AppCompatActivity() {
             // Display the Wi-Fi and gateway information
             val wifiInfoTextView = findViewById<TextView>(R.id.wifiInfoTextView)
             wifiInfoTextView.text = """
-                     SSID: $ssid
                      Gateway IP Address: ${formatIpAddress(gatewayIpAddress)}
                      """.trimIndent()
         } else {
@@ -586,11 +581,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openWebView (){
-        webView.visibility = View.VISIBLE
+        val progressBar : ProgressBar = findViewById(R.id.progressbar)
+        progressBar.visibility = View.VISIBLE
+
+        //webView.visibility = View.VISIBLE
         val webSettings = webView.settings
         webSettings.javaScriptEnabled = true
         webViewButton!!.visibility = View.GONE
-        webView.visibility = View.VISIBLE
+        //webView.visibility = View.VISIBLE
         webView.webViewClient = WebViewClient()
 
         // new lines addition
@@ -604,10 +602,13 @@ class MainActivity : AppCompatActivity() {
             override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
                 Log.d("WebViewConsole", "${consoleMessage?.message()}")
                 if (consoleMessage?.message().toString() == "AmbeentFailure"){
+                    progressBar.visibility = View.GONE
+                    displaySnackbar(snackLayout, "Invalid Credentials")
                     showCredentialsPopup()
                 }
                 else if (consoleMessage?.message().toString() == "AmbeentSuccess"){
                     webView.visibility = View.GONE
+                    progressBar.visibility = View.GONE
                     displaySnackbar(snackLayout, "Your router setup is successfull.")
                 }
                 return super.onConsoleMessage(consoleMessage)
