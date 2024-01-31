@@ -319,48 +319,57 @@ class MainActivity : AppCompatActivity() {
                             routerInfo = getUpnpInfo()
                             Log.d("RouterInfoDetails", "Router Info: ${routerInfo?.joinToString(", ")}")
 
-                            if (routerInfo?.get(0).isNullOrEmpty() && routerInfo?.get(1).isNullOrEmpty()){
-                                Log.d("NoBrand", "No Brand")
-                                runOnUiThread(){
-                                    displaySupportedBrands()
-                                }
-                            }
-
-                            else if (routerInfo?.get(1).isNullOrEmpty()){
-                                Log.d("NoRouter", "I am here")
-                                runOnUiThread(){
-                                    val brandE = routerInfo?.get(0)
-                                    if (brandE != null) {
-                                        displaySupportedRouters(brandE)
-                                    }
-                                }
+                            if (gatewayAddress == null || routerInfo == null) {
+                                displaySnackbar(snackLayout, "Router is not supported")
                             }
 
                             else{
-                                runOnUiThread {
-                                    extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
-                                    extractedRouter.setText(routerInfo?.get(1))
+
+                                if (routerInfo?.get(0).isNullOrEmpty() && routerInfo?.get(1).isNullOrEmpty()){
+                                    Log.d("NoBrand", "No Brand")
+                                    runOnUiThread(){
+                                        displaySupportedBrands()
+                                    }
                                 }
-                                val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "", setupUsername, setupPassword)
-                                AccessPointFactory.getAccessPoint(
-                                    router = myRouter,
-                                    gateway = gatewayAddress.toString(),
-                                    callbackPort = APP_CALLBACK_PORT
-                                )
-                                //New Lines added
-                                accesspoint = AccessPointFactory.getAccessPoint(
-                                    router = myRouter,
-                                    gateway = gatewayAddress.toString(),
-                                    callbackPort = APP_CALLBACK_PORT
-                                )
-                                finalBrand = getBrandShortName(routerInfo?.get(0))
-                                finalRouter = routerInfo?.get(1)!!
-                                finalGateway = gatewayAddress.toString()
-                                mAccessPoint = accesspoint
-                                Log.d("checkAccess", mAccessPoint.toString())
-                                Log.d("InfoStep1", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
-                                break
+
+                                else if (routerInfo?.get(1).isNullOrEmpty()){
+                                    Log.d("NoRouter", "I am here")
+                                    runOnUiThread(){
+                                        val brandE = routerInfo?.get(0)
+                                        if (brandE != null) {
+                                            displaySupportedRouters(brandE)
+                                        }
+                                    }
+                                }
+
+                                else{
+                                    runOnUiThread {
+                                        extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
+                                        extractedRouter.setText(routerInfo?.get(1))
+                                    }
+                                    val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "", setupUsername, setupPassword)
+                                    AccessPointFactory.getAccessPoint(
+                                        router = myRouter,
+                                        gateway = gatewayAddress.toString(),
+                                        callbackPort = APP_CALLBACK_PORT
+                                    )
+                                    //New Lines added
+                                    accesspoint = AccessPointFactory.getAccessPoint(
+                                        router = myRouter,
+                                        gateway = gatewayAddress.toString(),
+                                        callbackPort = APP_CALLBACK_PORT
+                                    )
+                                    finalBrand = getBrandShortName(routerInfo?.get(0))
+                                    finalRouter = routerInfo?.get(1)!!
+                                    finalGateway = gatewayAddress.toString()
+                                    mAccessPoint = accesspoint
+                                    Log.d("checkAccess", mAccessPoint.toString())
+                                    Log.d("InfoStep1", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
+                                    break
+                                }
+
                             }
+
 
                         }
                     }
@@ -383,48 +392,53 @@ class MainActivity : AppCompatActivity() {
                     // ... rest of your code ...
                     Log.d("RouterInfoDetails", "Router Info: ${routerInfo?.joinToString(", ")}")
 
-                    if (routerInfo?.get(0).isNullOrEmpty() && routerInfo?.get(1).isNullOrEmpty() ){
-                        runOnUiThread(){
-                            displaySupportedBrands()
-                        }
-                    }
-
-                    else if (routerInfo?.get(1).isNullOrEmpty()){
-                        val brandE = routerInfo?.get(0)
-                        runOnUiThread(){
-                            if (brandE != null) {
-                                displaySupportedRouters(brandE)
-                            }
-                        }
-                    }
-                    else{
-                        runOnUiThread {
-                            extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
-                            extractedRouter.setText(routerInfo?.get(1))
-                        }
-                        val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "", setupUsername, setupPassword)
-                        Log.d("myRouter", myRouter.toString())
-                        AccessPointFactory.getAccessPoint(
-                            router = myRouter,
-                            gateway = gatewayAddress.toString(),
-                            callbackPort = APP_CALLBACK_PORT
-                        )
-                        //New Lines added
-                        accesspoint = AccessPointFactory.getAccessPoint(
-                            router = myRouter,
-                            gateway = gatewayAddress.toString(),
-                            callbackPort = APP_CALLBACK_PORT
-                        )
-                        finalBrand = getBrandShortName(routerInfo?.get(0))
-                        finalRouter = routerInfo?.get(1)!!
-                        finalGateway = gatewayAddress.toString()
-                        mAccessPoint = accesspoint
-                        Log.d("checkAccess", mAccessPoint.toString())
-                        Log.d("LowerAndroidVersions", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
-                    }
                     if (gatewayAddress == null || routerInfo == null) {
                         displaySnackbar(snackLayout, "Router is not supported")
                     }
+
+                    else{
+                        if (routerInfo?.get(0).isNullOrEmpty() && routerInfo?.get(1).isNullOrEmpty() ){
+                            runOnUiThread(){
+                                displaySupportedBrands()
+                            }
+                        }
+
+                        else if (routerInfo?.get(1).isNullOrEmpty()){
+                            val brandE = routerInfo?.get(0)
+                            runOnUiThread(){
+                                if (brandE != null) {
+                                    displaySupportedRouters(brandE)
+                                }
+                            }
+                        }
+                        else{
+                            runOnUiThread {
+                                extractedBrand.setText(getBrandShortName(routerInfo?.get(0)))
+                                extractedRouter.setText(routerInfo?.get(1))
+                            }
+                            val myRouter = RouterEntity(getBrandShortName(routerInfo?.get(0)),routerInfo?.get(1), "", "", setupUsername, setupPassword)
+                            Log.d("myRouter", myRouter.toString())
+                            AccessPointFactory.getAccessPoint(
+                                router = myRouter,
+                                gateway = gatewayAddress.toString(),
+                                callbackPort = APP_CALLBACK_PORT
+                            )
+                            //New Lines added
+                            accesspoint = AccessPointFactory.getAccessPoint(
+                                router = myRouter,
+                                gateway = gatewayAddress.toString(),
+                                callbackPort = APP_CALLBACK_PORT
+                            )
+                            finalBrand = getBrandShortName(routerInfo?.get(0))
+                            finalRouter = routerInfo?.get(1)!!
+                            finalGateway = gatewayAddress.toString()
+                            mAccessPoint = accesspoint
+                            Log.d("checkAccess", mAccessPoint.toString())
+                            Log.d("LowerAndroidVersions", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
+                        }
+                    }
+
+
                 }
 
                 // Attempt 2: Get gateway from DhcpInfo (for older APIs)
