@@ -102,6 +102,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var  webView : WebView
     var setupUsername : String = ""
     var setupPassword : String = ""
+    var brandISupported = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,7 +143,11 @@ class MainActivity : AppCompatActivity() {
                 //val webViewButton = findViewById<Button>(R.id.btnWebViewOpen)
                 //webViewButton!!.visibility = View.VISIBLE
                 webViewButton!!.setOnClickListener(){
+                    if (brandISupported == false){
+                        displaySnackbar(snackLayout, "Router is not supported!")
+                    }else {
                         openWebView()
+                    }
                 }
 
             }
@@ -357,6 +362,7 @@ class MainActivity : AppCompatActivity() {
                                 finalRouter = routerInfo?.get(1)!!
                                 finalGateway = gatewayAddress.toString()
                                 mAccessPoint = accesspoint
+                                brandISupported = AccessPointFactory.supportedRouters.containsKey(myRouter.brand.toString())
                                 Log.d("checkAccess", mAccessPoint.toString())
                                 Log.d("InfoStep1", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
                                 break
@@ -419,6 +425,7 @@ class MainActivity : AppCompatActivity() {
                         finalRouter = routerInfo?.get(1)!!
                         finalGateway = gatewayAddress.toString()
                         mAccessPoint = accesspoint
+                        brandISupported = AccessPointFactory.supportedRouters.containsKey(myRouter.brand.toString())
                         Log.d("checkAccess", mAccessPoint.toString())
                         Log.d("LowerAndroidVersions", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
                     }
@@ -532,7 +539,7 @@ class MainActivity : AppCompatActivity() {
             mAccessPoint = accesspoint
 
             if (mAccessPoint != null){
-                openWebView()
+            openWebView()
             }
             else{
                 displaySnackbar(snackLayout, "Access point not found.")
