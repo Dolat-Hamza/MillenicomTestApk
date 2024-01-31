@@ -422,6 +422,9 @@ class MainActivity : AppCompatActivity() {
                         Log.d("checkAccess", mAccessPoint.toString())
                         Log.d("LowerAndroidVersions", "Gateway Address is : " + gatewayAddress.toString() + " Router Info is : " + routerInfo.toString())
                     }
+                    if (gatewayAddress == null || routerInfo == null) {
+                        displaySnackbar(snackLayout, "Router is not supported")
+                    }
                 }
 
                 // Attempt 2: Get gateway from DhcpInfo (for older APIs)
