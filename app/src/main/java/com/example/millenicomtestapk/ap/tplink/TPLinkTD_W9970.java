@@ -95,14 +95,18 @@ public class TPLinkTD_W9970 extends AccessPoint {
                     "var repeatInterval3 = setInterval(function(){" +
                     "if(document.getElementsByClassName('button L T T_save')[0] !== undefined){" +
                     "clearInterval(repeatInterval3);" +
-                    "document.getElementsByClassName('button L T T_save')[0].click()" +
+                    "setTimeout(function() {" +
+                    "document.getElementsByClassName('button L T T_save')[0].click();" +
+                    "}, 2000);" +
                     "}" +
                     "}, 1200);" +
 
                     "var repeatInterval4 = setInterval(function(){" +
                     "if(document.getElementsByClassName('button L T T_finish')[0] !== undefined){" +
                     "clearInterval(repeatInterval4);" +
-                    "document.getElementsByClassName('button L T T_finish')[0].click()" +
+                    "setTimeout(function() {" +
+                    "document.getElementsByClassName('button L T T_finish')[0].click();" +
+                    "}, 7000);" +
                     "}" +
                     "}, 2000);" +
                     "},7000);" +
@@ -110,12 +114,24 @@ public class TPLinkTD_W9970 extends AccessPoint {
         }
 
         else if (state == State.SETUP_STATE2) {
+            state = State.EXIT_STATE;
             return "javascript:{" +
+                    "setTimeout(function() {" +
                     "console.log('test SETUP_STATE2');" +
-                    "$.act(ACT_CGI, '/cgi/logout');" +
-                    "$.exe();" +
-                    "$.refresh();" +
-                    "console.log('AmbeentSuccess');" +
+                    "window.confirm = function() {" +
+                    "return true;" +
+                    "};" +
+                    "try {" +
+                        "document.getElementById('menu_logout').click();" +
+                        "console.log('AmbeentSuccess');" +
+                    "} catch {" +
+                        "console.log('AmbeentSuccess');" +
+                    "}" +
+                    "}, 4000);" +
+                    "};";
+        }   else if (state == State.EXIT_STATE) {
+            return "javascript:{" +
+                    "console.log('EXIT_STATE');" +
                     "};";
         }
         return null;
@@ -126,6 +142,7 @@ public class TPLinkTD_W9970 extends AccessPoint {
         CREDENTIAL_CHECK_STATE,
         CREDENTIAL_CHECK_STATE2,
         SETUP_STATE,
-        SETUP_STATE2
+        SETUP_STATE2,
+        EXIT_STATE
     }
 }
