@@ -87,22 +87,22 @@ public class TPLinkTD_W9970 extends AccessPoint {
                     "document.getElementById('usr').value = '" + getSetupUsername() + "';" +
                     "document.getElementById('pwd').value= '" + getSetupPassword() + "';" +
                     "document.getElementById('cfm').value= '" + getSetupPassword() + "';" +
-                    //"document.getElementsByClassName('button L T T_next')[0].click();" +
+                    "document.getElementsByClassName('button L T T_next')[0].click();" +
                     "setTimeout(function() {" +
-                    //"document.getElementsByClassName('button L T T_next')[0].click();" +
+                    "document.getElementsByClassName('button L T T_next')[0].click();" +
                     "},2000);" +
 
                     "var repeatInterval3 = setInterval(function(){" +
                     "if(document.getElementsByClassName('button L T T_save')[0] !== undefined){" +
                     "clearInterval(repeatInterval3);" +
-                    //"document.getElementsByClassName('button L T T_save')[0].click()" +
+                    "document.getElementsByClassName('button L T T_save')[0].click()" +
                     "}" +
                     "}, 1200);" +
 
                     "var repeatInterval4 = setInterval(function(){" +
                     "if(document.getElementsByClassName('button L T T_finish')[0] !== undefined){" +
                     "clearInterval(repeatInterval4);" +
-                    //"document.getElementsByClassName('button L T T_finish')[0].click()" +
+                    "document.getElementsByClassName('button L T T_finish')[0].click()" +
                     "}" +
                     "}, 2000);" +
                     "},7000);" +
@@ -112,7 +112,9 @@ public class TPLinkTD_W9970 extends AccessPoint {
         else if (state == State.SETUP_STATE2) {
             return "javascript:{" +
                     "console.log('test SETUP_STATE2');" +
-                    "document.getElementById('menu_logout').click();" +
+                    "$.act(ACT_CGI, '/cgi/logout');" +
+                    "$.exe();" +
+                    "$.refresh();" +
                     "console.log('AmbeentSuccess');" +
                     "};";
         }

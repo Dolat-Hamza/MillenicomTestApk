@@ -612,6 +612,7 @@ class MainActivity : AppCompatActivity() {
                 else if (consoleMessage?.message().toString() == "AmbeentSuccess"){
                     webView.visibility = View.GONE
                     progressBar.visibility = View.GONE
+                    webViewButton!!.visibility = View.VISIBLE
                     displaySnackbar(snackLayout, "Your router setup is successfull.")
                 }
                 return super.onConsoleMessage(consoleMessage)
