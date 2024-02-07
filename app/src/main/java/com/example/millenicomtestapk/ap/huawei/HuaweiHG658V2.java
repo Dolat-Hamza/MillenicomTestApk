@@ -66,17 +66,37 @@ public class HuaweiHG658V2 extends AccessPoint {
                     "setTimeout(function() {" +
                     "document.getElementById('wan_setup_InternetGatewayDevice_WANDevice_1_WANConnectionDevice_1_WANPPPConnection_1__change').click();" +
                     "},3000);" +
+
                     "var repeatInterval = setInterval(function(){" +
                     "if(document.getElementById('wan_internal_edit_view_wan_Username_ctrl') !== undefined && document.getElementById('wan_internal_edit_view_wan_Username_ctrl') !== null){" +
                     "clearInterval(repeatInterval);" +
                     "Ember.View.views['wan_internal_edit_view'].content.Username = '" + getSetupUsername() + "';" +
                     "Ember.View.views['wan_internal_edit_view'].content.Password = '" + getSetupPassword() + "';" +
+
                     "setTimeout(function() {" +
                     "document.getElementById('wan_submit_item').click();" +
+
+                    "setTimeout(function() {" +
+                    "document.getElementById('wan_setup_InternetGatewayDevice_WANDevice_2_WANConnectionDevice_1_WANPPPConnection_1__change').click();" +
+
+                    "var repeatInterval2 = setInterval(function(){" +
+                    "if(document.getElementById('wan_internal_edit_view_wan_Username_ctrl') !== undefined && document.getElementById('wan_internal_edit_view_wan_Username_ctrl') !== null){" +
+                    "clearInterval(repeatInterval2);" +
+                    "Ember.View.views['wan_internal_edit_view'].content.Username = '" + getSetupUsername() + "';" +
+                    "Ember.View.views['wan_internal_edit_view'].content.Password = '" + getSetupPassword() + "';" +
+                    "document.getElementById('wan_submit_item').click();" +
+
+
                     "setTimeout(function() {" +
                     "document.getElementById('signout_ctrl').click();" +
                     "console.log('AmbeentSuccess');" +
+                    "},4000);" +
+                    "}" +
+
+                    "},2000);" +
+
                     "},3000);" +
+
                     "},3000);" +
                     "}" +
                     "},2000);" +
