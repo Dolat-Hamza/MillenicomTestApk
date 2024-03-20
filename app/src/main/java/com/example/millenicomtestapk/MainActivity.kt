@@ -617,7 +617,7 @@ class MainActivity : AppCompatActivity() {
                     webView.visibility = View.GONE
                     progressBar.visibility = View.GONE
                     webViewButton!!.visibility = View.VISIBLE
-                    displaySnackbar(snackLayout, "Your router setup is successfull.")
+                    displaySnackbar(snackLayout, "Your router setup is successful. It may take a few minutes for the modem to connect to the internet")
                 }
                 return super.onConsoleMessage(consoleMessage)
             }
